@@ -34,7 +34,13 @@ jobs:
     runs-on: ubuntu-slim # 5GB RAM
     strategy:
       matrix:
-        script: [load_json.py, load_jsonl.py, load_pandas_json.py, load_pandas_jsonl.py]
+        script:
+          - load_json.py
+          - load_jsonl.py
+          - load_pandas_json.py
+          - load_pandas_jsonl.py
+          - load_interning_json.py
+          - load_interning_jsonl.py
     steps:
       - uses: actions/checkout@v3
 

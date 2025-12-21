@@ -1,2 +1,3 @@
 venv/
 uncommitted/
+__pycache__/
