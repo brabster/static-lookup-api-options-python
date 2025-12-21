@@ -1,5 +1,6 @@
 name: Analysing operational characteristics for different JSON-based static data load and reload approaches
 on:
+  - push
   - workflow_dispatch
   
 jobs:
@@ -14,7 +15,7 @@ jobs:
 
           pip install -r requirements.txt
 
-          python generate_data.py \
+          python generate_dataset.py \
             --num_samples 1000000 \
             --num_recommendations 10 \
             --product_pool_size 10000
