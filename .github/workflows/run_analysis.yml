@@ -29,5 +29,74 @@ jobs:
             uncommitted/recommendations_dataset.json
             uncommitted/recommendations_dataset.jsonl
 
-        
+  measure_performance:
+    needs: run_analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        script: [load_json.py, load_jsonl.py, load_pandas_json.py, load_pandas_jsonl.py]
+    steps:
+      - uses: actions/checkout@v3
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: data_sample
+          path: uncommitted/
+
+      - name: Run Analysis with vmstat monitoring
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          
+          pip install -r requirements.txt
+
+          # Start vmstat in the background
+          # -n suppresses repeating headers
+          # 1 is the delay in seconds
+          vmstat -n 1 > vmstat_${{ matrix.script }}.log &
+          VMSTAT_PID=$!
+
+          # Run the target script
+          # We assume the script takes the appropriate file path as an argument 
+          # or finds it in the expected location.
+          if [[ "${{ matrix.script }}" == *"jsonl"* ]]; then
+            DATA_FILE="uncommitted/recommendations_dataset.jsonl"
+          else
+            DATA_FILE="uncommitted/recommendations_dataset.json"
+          fi
+
+          python ${{ matrix.script }} $DATA_FILE
+
+          # Stop vmstat
+          kill $VMSTAT_PID
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vmstat-results-${{ matrix.script }}
+          path: vmstat_${{ matrix.script }}.log
+
+  generate_summary:
+    needs: measure_performance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vmstat-results-*
+          merge-multiple: true
+          path: performance_data/
+
+      - name: Generate Jupyter Notebook Summary
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+          pip install -r requirements.txt
+
+          ls -lart performance_data/
+
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: summary-notebook
+      #     path: summary_analysis.ipynb
