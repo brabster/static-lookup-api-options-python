@@ -1,0 +1,32 @@
+name: Analysing operational characteristics for different JSON-based static data load and reload approaches
+on:
+  - workflow_dispatch
+  
+jobs:
+  run_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          python -m venv venv
+          source venv/bin/activate
+
+          pip install -r requirements.txt
+
+          python generate_data.py \
+            --num_samples 1000000 \
+            --num_recommendations 10 \
+            --product_pool_size 10000
+
+          ls -lh uncommitted/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: data_sample
+          path: |
+            uncommitted/recommendations_dataset.json
+            uncommitted/recommendations_dataset.jsonl
+
+        
+
