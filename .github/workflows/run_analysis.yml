@@ -59,8 +59,8 @@ jobs:
 
           # Start vmstat in the background
           # -n suppresses repeating headers
-          # 1 is the delay in seconds
-          vmstat -n 1 > vmstat_${{ matrix.script }}.log &
+          # timestamps, megabytes, don't repeat header, 1 is the delay in seconds
+          vmstat -t -S M -n 1 > vmstat_${{ matrix.script }}.log &
           VMSTAT_PID=$!
           echo "vmstat running with PID: $VMSTAT_PID"
 
@@ -104,7 +104,7 @@ jobs:
 
           ls -lart performance_data/
 
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: summary-notebook
-      #     path: summary_analysis.ipynb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: summary
+          path: performance_data
