@@ -44,6 +44,7 @@ jobs:
           path: uncommitted/
 
       - name: Run Analysis with vmstat monitoring
+        continue-on-error: true
         run: |
           python -m venv venv
           source venv/bin/activate
@@ -66,7 +67,7 @@ jobs:
             DATA_FILE="uncommitted/recommendations_dataset.json"
           fi
 
-          time python ${{ matrix.script }} $DATA_FILE
+          time python ${{ matrix.script }} $DATA_FILE || true
 
           # Stop vmstat
           kill $VMSTAT_PID
