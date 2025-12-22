@@ -8,4 +8,4 @@ def loader(path):
 
 
 if __name__ == "__main__":
-    test_harness.run_test("uncommitted/recommendations_dataset.jsonl", loader)
+    test_harness.run_test("uncommitted/recommendations_dataset.json", loader)

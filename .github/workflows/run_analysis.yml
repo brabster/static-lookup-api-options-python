@@ -16,7 +16,7 @@ jobs:
           pip install -r requirements.txt
 
           python generate_dataset.py \
-            --num_samples 1500000 \
+            --num_samples 1000000 \
             --num_recommendations 10 \
             --product_pool_size 10000
 
@@ -28,6 +28,7 @@ jobs:
           path: |
             uncommitted/recommendations_dataset.json
             uncommitted/recommendations_dataset.jsonl
+            uncommitted/recommendations_dataset.pkl
 
   measure_performance:
     needs: run_analysis
