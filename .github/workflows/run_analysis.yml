@@ -40,6 +40,8 @@ jobs:
           - load_jsonl.py
           - load_pandas_json.py
           - load_pandas_jsonl.py
+          - load_polars_json.py
+          - load_polars_jsonl.py
           - load_interning_json.py
           - load_interning_jsonl.py
           - load_interned_pickle.py
