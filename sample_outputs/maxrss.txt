@@ -1,0 +1,10 @@
+program,maxrss_gb,real_s
+load_json.py,2.9172134399414062,33
+load_jsonl.py,2.684429168701172,63
+load_pandas_json.py,3.3873291015625,394
+load_pandas_jsonl.py,4.273296356201172,435
+load_polars_json.py,4.513607025146484,52
+load_polars_jsonl.py,3.0986366271972656,55
+load_interning_json.py,1.8251838684082031,157
+load_interning_jsonl.py,1.1538848876953125,254
+load_interned_pickle.py,0.9478492736816406,13
