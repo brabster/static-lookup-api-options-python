@@ -17,7 +17,7 @@ jobs:
 
           python generate_dataset.py \
             --num_samples 1000000 \
-            --num_recommendations 15 \
+            --num_recommendations 20 \
             --product_pool_size 10000
 
           ls -lh uncommitted/
