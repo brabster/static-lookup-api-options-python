@@ -50,6 +50,18 @@ def as_jsonl(recs, file_path):
     return path
 
 
+def as_interned_pickle(recs, file_path):
+    import pickle
+    import sys
+
+    path = file_path.with_suffix('.pkl')
+    for rec in recs:
+        rec['recommended_products'] = [sys.intern(pid) for pid in rec['recommended_products']]
+    with open(path, 'wb') as out:
+        pickle.dump(recs, out)
+    return path
+
+
 if __name__ == '__main__':
     args = parse_args()
 
@@ -72,4 +84,8 @@ if __name__ == '__main__':
 
     jsonl_path = as_jsonl(recommendations, out_path_root)
     print(f'Wrote recommendations JSONL to {jsonl_path}.')
+
+    pickle_path = as_interned_pickle(recommendations, out_path_root)
+    print(f'Wrote recommendations pickle to {pickle_path}.')
+    
     print('Done.')

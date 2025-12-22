@@ -1,23 +1,16 @@
-import resource
+import json
+import test_harness
 
 from interning_json_decoder import InterningJSONDecoder
 
-def print_memory_usage_gb():
-    usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    return usage / 1024 / 1024
+
+def loader(path):
+    with open(path, "r") as f:
+        data = []
+        for line in f:
+            data.append(json.loads(line, cls=InterningJSONDecoder))
+        return data
+
 
 if __name__ == "__main__":
-    import json
-
-    live = None
-
-    for _ in range(10):
-        with open("uncommitted/recommendations_dataset.jsonl", "r") as f:
-            data = []
-            for line in f:
-                data.append(json.loads(line, cls=InterningJSONDecoder))
-                
-            live = data
-            print(f'{len(live)} records, {print_memory_usage_gb()}GB MaxRSS')
-
-    print_memory_usage_gb()
+    test_harness.run_test("uncommitted/recommendations_dataset.jsonl", loader)

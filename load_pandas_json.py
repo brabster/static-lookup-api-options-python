@@ -1,19 +1,13 @@
-import resource
-
 import pandas
+import test_harness
 
-def print_memory_usage_gb():
-    usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    return usage / 1024 / 1024
+def loader(path):
+    return pandas.read_json(path)
+
+
+def to_recs_dict(df):
+    return {row['id']: row['recommended_products'] for _, row in df.iterrows()}
+
 
 if __name__ == "__main__":
-
-    live = None
-
-    for _ in range(10):
-        df = pandas.read_json("uncommitted/recommendations_dataset.json")
-            
-        live = df
-        print(f'{len(live)} records, {print_memory_usage_gb()}GB MaxRSS')
-
-    print_memory_usage_gb()
+    test_harness.run_test("uncommitted/recommendations_dataset.json", loader, to_recs_dict)

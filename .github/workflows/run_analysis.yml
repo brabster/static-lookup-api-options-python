@@ -41,6 +41,8 @@ jobs:
           - load_pandas_jsonl.py
           - load_interning_json.py
           - load_interning_jsonl.py
+          - load_interned_pickle.py
+          
     steps:
       - uses: actions/checkout@v3
 
@@ -64,16 +66,7 @@ jobs:
           VMSTAT_PID=$!
           echo "vmstat running with PID: $VMSTAT_PID"
 
-          # Run the target script
-          # We assume the script takes the appropriate file path as an argument 
-          # or finds it in the expected location.
-          if [[ "${{ matrix.script }}" == *"jsonl"* ]]; then
-            DATA_FILE="uncommitted/recommendations_dataset.jsonl"
-          else
-            DATA_FILE="uncommitted/recommendations_dataset.json"
-          fi
-
-          time python ${{ matrix.script }} $DATA_FILE || true
+          time python ${{ matrix.script }} || true
 
           # Stop vmstat
           kill $VMSTAT_PID
