@@ -15,7 +15,17 @@ def default_to_recs_dict(list_of_dicts):
     return {item['id']: item['recommended_products'] for item in list_of_dicts}
 
 
-def run_test(path, loader, to_recs_dict=default_to_recs_dict):
+def parse_value_default(value):
+    return value
+
+
+def load_sample():
+    path = pathlib.Path('uncommitted/recommendations_dataset.sample.json')
+    with open(path, 'r') as f:
+        return json.load(f)
+
+
+def run_test(path, loader, to_recs_dict=default_to_recs_dict, parse_value=parse_value_default):
     live = None
     start = time.time()
 
@@ -24,12 +34,25 @@ def run_test(path, loader, to_recs_dict=default_to_recs_dict):
 
         live = to_recs_dict(temp_data)
         print(f'{len(live)} records, {max_memory_usage_gb()}GB MaxRSS')
-
+    
     end = time.time()
-    elapsed = end - start
+    load_elapsed = end - start
 
-    print(f'Example record: {next(iter(live.items()))}')
+    sample = load_sample()
+
+    start = time.time()
+
+    for record in sample:
+        recs = parse_value(live[record['id']])
+        assert recs == record['recommended_products']
+    
+    end = time.time()
+    sample_elapsed = end - start
+
+    print(f'Example record: {live[sample[0]['id']]}')
     print(f'Done - {max_memory_usage_gb()}GB MaxRSS')
+    print(f'Load elapsed time over {iterations} iterations: {load_elapsed}s')
+    print(f'Request sample elapsed time: {sample_elapsed * 1000}ms')
 
     script_name = pathlib.Path(sys.argv[0]).stem
     out_path = pathlib.Path('uncommitted') / 'outputs' / 'logs' / (script_name + '_log.json')
@@ -40,6 +63,8 @@ def run_test(path, loader, to_recs_dict=default_to_recs_dict):
             'script': script_name,
             'num_records': len(live),
             'max_memory_gb': max_memory_usage_gb(),
-            'elapsed_time_s': elapsed,
-            'mean_time_per_iteration_s': elapsed / iterations
+            'load_elapsed_time_s': load_elapsed,
+            'load_mean_time_per_iteration_s': load_elapsed / iterations,
+            'req_sample_elapsed_time_ms': sample_elapsed * 1000,
+            'req_sample_mean_time_per_req_ms': (sample_elapsed / len(sample)) * 1000
         }))
