@@ -6,4 +6,4 @@ def loader(path):
         return pickle.load(f)
 
 if __name__ == "__main__":
-    test_harness.run_test("uncommitted/recommendations_dataset_interned.pkl", loader)
+    test_harness.run_test("uncommitted/recommendations_dataset.pkl", loader)

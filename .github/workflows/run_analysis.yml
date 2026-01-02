@@ -1,7 +1,23 @@
 name: Analysing operational characteristics for different JSON-based static data load and reload approaches
 on:
   - push
-  - workflow_dispatch
+  - workflow_dispatch:
+      inputs:
+        customers:
+          description: 'Number of customers to generate in the dataset'
+          default: 1000000
+          required: false
+          type: int
+        recommendations:
+          description: 'Number of recommendations to generate for each customer'
+          default: 20
+          required: false
+          type: int
+        product_pool_size:
+          description: 'Size of the product pool to generate in the dataset'
+          default: 10000
+          required: false
+          type: int
   
 jobs:
   run_analysis:
@@ -16,9 +32,9 @@ jobs:
           pip install -r requirements.txt
 
           python generate_dataset.py \
-            --num_samples 1000000 \
-            --num_recommendations 20 \
-            --product_pool_size 10000
+            --num_samples ${{ inputs.customers }} \
+            --num_recommendations ${{ inputs.recommendations }} \
+            --product_pool_size ${{ inputs.product_pool_size }}
 
           ls -lh uncommitted/
 
@@ -44,6 +60,7 @@ jobs:
           - load_polars_jsonl.py
           - load_interning_json.py
           - load_interning_jsonl.py
+          - load_pickle.py
           - load_interned_pickle.py
           
     steps:
