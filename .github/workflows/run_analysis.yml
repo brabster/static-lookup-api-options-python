@@ -83,7 +83,8 @@ jobs:
           # Start vmstat in the background
           # -n suppresses repeating headers
           # timestamps, megabytes, don't repeat header, 1 is the delay in seconds
-          vmstat -t -S M -n 1 > uncomitted/outputs/vmstat/vmstat_${{ matrix.script }}.log &
+          mkdir -p uncommitted/outputs/vmstat
+          vmstat -t -S M -n 1 > uncommitted/outputs/vmstat/vmstat_${{ matrix.script }}.log &
           VMSTAT_PID=$!
           echo "vmstat running with PID: $VMSTAT_PID"
 
