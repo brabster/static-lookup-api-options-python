@@ -71,7 +71,7 @@ def as_interned_pickle(recs, file_path):
     
 
 def as_dbm(recs, file_path):
-    import dbm
+    import dbm.ndbm as dbm
 
     path = file_path.with_suffix('.dbm')
     print(f'db impl: {dbm.whichdb(path)}')

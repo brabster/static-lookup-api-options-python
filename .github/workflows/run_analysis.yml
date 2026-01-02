@@ -40,14 +40,8 @@ jobs:
         with:
           name: data_sample
           path: |
-            uncommitted/recommendations_dataset.json
-            uncommitted/recommendations_dataset.jsonl
-            uncommitted/recommendations_dataset.pkl
-            uncommitted/recommendations_dataset_interned.pkl
-            uncommitted/recommendations_dataset.dbm
-            uncommitted/recommendations_dataset.shelve
-            uncommitted/recommendations_dataset.sample.json
-
+            uncommitted/recommendations_dataset*
+            
   measure_performance:
     needs: generate_dataset
     runs-on: ubuntu-slim # 5GB RAM
