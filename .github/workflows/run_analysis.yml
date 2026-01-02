@@ -48,7 +48,7 @@ jobs:
             uncommitted/recommendations_dataset.pkl
 
   measure_performance:
-    needs: run_analysis
+    needs: generate_dataset
     runs-on: ubuntu-slim # 5GB RAM
     strategy:
       matrix:
