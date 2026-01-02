@@ -29,8 +29,6 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-          pip install -r requirements.txt
-
           python generate_dataset.py \
             --num_samples ${{ inputs.customers }} \
             --num_recommendations ${{ inputs.recommendations }} \
@@ -83,7 +81,13 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           
-          pip install -r requirements.txt
+          if [[ ${{ matrix.script }} =~ "pandas" ]]; then
+            pip install 'pandas>=2.2.0'
+          fi
+
+          if [[ ${{ matrix.script }} =~ "polars" ]]; then
+            pip install 'polars>=1.36.1'
+          fi
 
           # Start vmstat in the background
           # -n suppresses repeating headers
