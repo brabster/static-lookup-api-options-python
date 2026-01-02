@@ -44,8 +44,8 @@ jobs:
             uncommitted/recommendations_dataset.jsonl
             uncommitted/recommendations_dataset.pkl
             uncommitted/recommendations_dataset_interned.pkl
-            uncommitted/recommendations_dataset.dbm.db
-            uncommitted/recommendations_dataset.shelve.db
+            uncommitted/recommendations_dataset.dbm
+            uncommitted/recommendations_dataset.shelve
             uncommitted/recommendations_dataset.sample.json
 
   measure_performance:
