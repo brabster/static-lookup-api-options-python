@@ -1,24 +1,24 @@
 name: Analysing operational characteristics for different JSON-based static data load and reload approaches
 on:
-  - push
-  - workflow_dispatch:
-      inputs:
-        customers:
-          description: 'Number of customers to generate in the dataset'
-          default: 1000000
-          required: false
-          type: int
-        recommendations:
-          description: 'Number of recommendations to generate for each customer'
-          default: 20
-          required: false
-          type: int
-        product_pool_size:
-          description: 'Size of the product pool to generate in the dataset'
-          default: 10000
-          required: false
-          type: int
-  
+  push: {}
+  workflow_dispatch:
+    inputs:
+      customers:
+        description: 'Number of customers to generate in the dataset'
+        default: 1000000
+        required: false
+        type: int
+      recommendations:
+        description: 'Number of recommendations to generate for each customer'
+        default: 20
+        required: false
+        type: int
+      product_pool_size:
+        description: 'Size of the product pool to generate in the dataset'
+        default: 10000
+        required: false
+        type: int
+
 jobs:
   run_analysis:
     runs-on: ubuntu-latest
