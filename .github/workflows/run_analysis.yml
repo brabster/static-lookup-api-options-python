@@ -45,6 +45,7 @@ jobs:
             uncommitted/recommendations_dataset.json
             uncommitted/recommendations_dataset.jsonl
             uncommitted/recommendations_dataset.pkl
+            uncommitted/recommendations_dataset_interned.pkl
 
   measure_performance:
     needs: generate_dataset
