@@ -83,7 +83,7 @@ jobs:
           # Start vmstat in the background
           # -n suppresses repeating headers
           # timestamps, megabytes, don't repeat header, 1 is the delay in seconds
-          vmstat -t -S M -n 1 > vmstat_${{ matrix.script }}.log &
+          vmstat -t -S M -n 1 > uncomitted/outputs/vmstat/vmstat_${{ matrix.script }}.log &
           VMSTAT_PID=$!
           echo "vmstat running with PID: $VMSTAT_PID"
 
@@ -94,29 +94,36 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: vmstat-results-${{ matrix.script }}
-          path: vmstat_${{ matrix.script }}.log
+          name: perf-output-${{ matrix.script }}
+          path: uncommitted/outputs/**/*.*
 
   generate_summary:
     needs: measure_performance
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: vmstat-results-*
+          # Match the unique pattern from the matrix job
+          pattern: perf-output-*
+          # Merge all matched artifacts into one directory
           merge-multiple: true
-          path: performance_data/
+          path: raw_data/
 
-      - name: Generate Jupyter Notebook Summary
+      - name: Organize Artifacts
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          mkdir -p performance_data/vmstat
+          
+          find raw_data -name "vmstat_*.log" -exec mv {} performance_data/vmstat/ \;
+          
+          find raw_data -name "*.json" -print0 | while IFS= read -r -d '' file; do
+              cat "$file"
+              echo "" 
+          done > performance_data/summary.jsonl
 
-          pip install -r requirements.txt
-
-          ls -lart performance_data/
+          echo "File structure prepared:"
+          ls -R performance_data/
 
       - uses: actions/upload-artifact@v4
         with:
