@@ -21,7 +21,7 @@ on:
 
 jobs:
   generate_dataset:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -103,7 +103,7 @@ jobs:
 
   generate_summary:
     needs: measure_performance
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
