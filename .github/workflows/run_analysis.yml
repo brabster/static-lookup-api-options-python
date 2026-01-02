@@ -1,7 +1,6 @@
 name: Analysing operational characteristics for different JSON-based static data load and reload approaches
 
 on:
-  push: {}
   workflow_dispatch:
     inputs:
       customers:
