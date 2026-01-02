@@ -81,12 +81,14 @@ def as_dbm(recs, file_path):
 
 
 def as_shelve(recs, file_path):
+    import dbm.ndbm
     import shelve
 
     path = file_path.with_suffix('.shelve')
-    with shelve.open(path, 'n') as db:
+    with dbm.ndbm.open(path, 'n') as db:
+        shelf = shelve.Shelf(db)
         for rec in recs:
-            db[rec['id']] = rec['recommended_products']
+            shelf[rec['id']] = rec['recommended_products']
     return path
 
 
