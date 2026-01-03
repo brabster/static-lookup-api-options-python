@@ -13,7 +13,7 @@ A preferable solution:
 - has a simple implementation
 - avoids third-party dependencies
 
-Using Python to load these datasets into memory often needs more memory than expected, with Out-Of-Memory (OOM) crashes and excessive infrastructure costs. The default choice for many data practitioners is Pandas, a tool taught in every data science bootcamp, designed for numerical analysis.
+Using Python to load these datasets into memory often needs more memory than expected, with Out-Of-Memory (OOM) crashes and excessive infrastructure costs. The default choice for many data practitioners is Pandas, a tool taught in every data science bootcamp, designed for numerical analysis. This repo explores different options using GitHub actions, and [raw data artefacts are avaiable in the Actions tab](https://github.com/brabster/static-lookup-api-options-python/actions/runs/20674448396).
 
 ## Conclusion up front
 
