@@ -5,7 +5,6 @@ import random
 import uuid
 
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate a recommendations dataset.")
     parser.add_argument(
