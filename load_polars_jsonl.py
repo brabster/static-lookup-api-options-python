@@ -13,4 +13,7 @@ def parse_value(value):
     return value.to_list()
 
 if __name__ == "__main__":
-    test_harness.run_test("uncommitted/recommendations_dataset.jsonl", loader=loader, to_recs_dict=to_recs_dict, parse_value=parse_value)
+    test_harness.run_test("uncommitted/recommendations_dataset.jsonl",
+                          loader=loader,
+                          to_recs_dict=to_recs_dict,
+                          parse_value=parse_value)
