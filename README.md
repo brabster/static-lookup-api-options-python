@@ -19,7 +19,7 @@ Using Python to load these datasets into memory often needs more memory than exp
 
 Pandas and Polars are the wrong tool for this job, in particular consuming far more memory than is necessary.
 
-Using Python's built-in `dbm` module allows records to be looked up directly from disk instead of loading into memory, meeting all the needs listed above.
+Using Python's built-in `dbm` module allows records to be looked up directly from disk instead of loading into memory, meeting all the needs listed above. Serving requests from a web API using dbm.ndbm performs similarly to serving the requests from memory.
 
 Other options provide different trade-offs of memory utilisation and loading time.
 
@@ -30,6 +30,8 @@ Other options provide different trade-offs of memory utilisation and loading tim
 [A test harness](./test_harness.py) loads the appropriate dataset format ten times, simulating the common reload-in-memory approach that usually requires enough memory to hold two copies of the data in memory to enable the swap. (I avoid mutating in-place as that avoids significant classes of errors and uncertainties). The harness then times a look up of the 100 customer ID samples to measure the lookup latency.
 
 The test suite runs on GitHub Actions `ubuntu-slim` runners that have around 5GB of memory available.
+
+[A simple performance test](./load_dbm_serve_test.py) over the most operable options, using the [Locust load testing framework](https://docs.locust.io/en/stable/index.html) tests a simple Flask/gunicorn webapp that wraps the implementation.
 
 ## Results (1m customers with 10 recs from 10k products)
 
@@ -85,4 +87,24 @@ Python ships with persistent key-value storage implementing the dictionary API. 
 
 **Conclusion: instant atomic reloads in constant time and memory with fast lookup performance.**
 
+## Load testing
+
+The load test runs 100 concurrent users over 4 threads, looking up recommendations for the random sample of customer iDs. This was done in the local dev envronment for the pickle-based solution and for the dbm-based solution. The results are similar for the two implementations, with the dbm-based implementation counterintuitively coming out a little faster over each of three runs, perhaps because there was more memory available for the dbm implementation.
+
+Here are example run stats over 60s. The behaviour was similar over several runs for each implementation.
+
+### dbm.ndbm
+
+Response time percentiles (ms, approximated)
+|Type    |Name             |     50%|   95%|  100%|# reqs|
+|--------|-----------------|--------|------|------|------|
+|GET     |/recommendations |      14|    41|   440| 60570|
+
+
+###  pickle
+
+Response time percentiles  (ms, approximated)
+Type    |Name              |     50%|   95%|  100%|# reqs|
+--------|------------------|--------|------|------|------|
+GET     |/recommendations  |      16|    40|  5000| 55533|
 
