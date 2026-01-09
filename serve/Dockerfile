@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir -r serve_requirements.txt
 
 COPY . .
 
-COPY uncommitted/recommendations_dataset.compressed.dbm /app/data/recommendations_dataset.compressed.dbm
+COPY uncommitted/recommendations_dataset.compressed.dbm.db /app/data/recommendations_dataset.compressed.dbm.db
 
 # Set the environment variable to point to the internal file
 ENV DB_PATH="/app/data/recommendations_dataset.compressed.dbm"
