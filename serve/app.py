@@ -7,6 +7,9 @@ import flask
 
 
 def load_db(path):
+    import pathlib
+    print(f'loading db from {path}...')
+    print(f'{os.listdir(pathlib.Path(path).parent)}')
     return dbm.open(path, 'r')
 
 

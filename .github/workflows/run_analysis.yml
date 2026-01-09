@@ -125,8 +125,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: ./serve/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ghcr.io/${{ github.repository }}:latest
 
   generate_summary:
     needs: measure_performance
