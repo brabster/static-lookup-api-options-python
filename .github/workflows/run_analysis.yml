@@ -101,6 +101,33 @@ jobs:
           name: perf-output-${{ matrix.script }}
           path: uncommitted/outputs/**/*.*
 
+  build_image_and_push:
+    runs-on: ubuntu-latest
+    needs: generate_dataset
+    
+    permissions:
+      contents: read
+      packages: write 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: data_sample
+          path: uncommitted/
+
+      - name: Log in to the Container registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
   generate_summary:
     needs: measure_performance
     runs-on: ubuntu-latest

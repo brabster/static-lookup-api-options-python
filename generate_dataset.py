@@ -79,6 +79,17 @@ def as_dbm(recs, file_path):
     return path
 
 
+def as_dbm_compressed_values(recs, file_path):
+    import dbm.ndbm as dbm
+    import zlib
+
+    path = file_path.with_suffix('.compressed.dbm')
+    with dbm.open(path, 'n') as db:
+        for rec in recs:
+            db[rec['id']] = zlib.compress(json.dumps(rec['recommended_products']).encode('utf-8'), level=6)
+    return path
+
+
 def as_shelve(recs, file_path):
     import dbm.ndbm
     import shelve
@@ -117,6 +128,9 @@ if __name__ == '__main__':
     with open(sample_ids_path, 'w') as sample_out:
         json.dump(sample_recs, sample_out)
     print(f'Wrote sample of 100 ids to {sample_ids_path}.')
+
+    dbm_compressed_path = as_dbm_compressed_values(recommendations, out_path_root)
+    print(f'Wrote recommendations dbm compressed values to {dbm_compressed_path}.')
 
     json_path = as_json(recommendations, out_path_root)
     print(f'Wrote recommendations JSON to {json_path}.')
