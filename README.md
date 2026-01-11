@@ -133,11 +133,13 @@ GET     |/recommendations                     |      13|    14|    15|    16|   
 
 The performance is much better than I expected, with a 13ms P50 and 1.4s at the max. The instance handled an average of 470 req/sec, and I saw peaks up to 700req/sec.
 
-This setup might work well, but I see operational challenges with the connection to Cloud Storage, which effectively forms a second tier to the application. Montitoring request volumes, latency and cost back to storage might be important to understand behaviour and costs, expecially as more instances scale out. There may be a learning curve to GCS FUSE in practice too, when I moved the file I got errors about stale references and swapping old data for new might not be trivial.
+This setup might work well, but I see operational challenges with the connection to Cloud Storage, which effectively forms a second tier to the application. Monitoring request volumes, latency and cost back to storage might be important to understand behaviour and costs, expecially as more instances scale out. That could be an attack vector too for denial of service or running you up a big fat bill by hammering you with random requests, causing cache misses and requests back to storage. There may be a learning curve to GCS FUSE in practice too, when I moved the file I got errors about stale references and swapping old data for new might not be trivial.
 
 ### Baking the data file into the container image
 
-The Dockerfile also copies over the compressed database file into the image and points the `DB_PATH` variable at the local copy. This is a really neat solution, with no moving parts to go wrong, no need for code to swap new data and linear horizontal scaling. If the data is sensitive there could be arguments against storing it in a container registry, but I'm not sure there's any real difference between that and keeping it in some other storage medium - one to think about.
+The Dockerfile also copies over the compressed database file into the image and points the `DB_PATH` variable at the local copy. [serve_scripts/deploy_built.sh](serve_scripts/deploy_built.sh) shows how it's configured for my test.
+
+This is a really neat solution, with no moving parts to go wrong, no need for code to swap new data and linear horizontal scaling. If the data is sensitive there could be arguments against storing it in a container registry, but I'm not sure there's any real difference between that and keeping it in some other storage medium - one to think about.
 
 Response time percentiles (approximated, ms)
 Type    |Name                                 |     50%|   66%|   75%|   80%|   90%|   95%|   98%|   99%| 99.9%|99.99%|  100%|# reqs
