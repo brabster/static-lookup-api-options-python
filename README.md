@@ -108,3 +108,42 @@ Type    |Name              |     50%|   95%|  100%|# reqs|
 --------|------------------|--------|------|------|------|
 GET     |/recommendations  |      16|    40|  5000| 55533|
 
+## Improving on dbm - compressed values
+
+The value strings stored in the dbm database can be compressed using standard libraries, further reducing the size of the database file. Doing so results in around a 50% reduction in file size for the 20-recs version (747MB vs 1.5GB), and more if the number of recommendations increases. Likely a worthwhile optimisation for many cases, for negligible decompression overhead. The compression can be found in [generate_dataset.py](generate_dataset.py), and decompression in [serve/app.py](serve/app.py).
+
+## Running serverless in the Cloud
+
+I'm interested in GCP Cloud Run as a specific target and a team-mate flagged a potential issue. Scratch disk in Cloud Run instances is actually backed by memory, not physical disk. That means some of the benefit of using `dbm` is lost because we're really still working in memory.
+
+This no-physical-disk approach is not universal. AWS Fargate, for example, does appear to provide physical disk ephemeral storage. Where real disk is available, using it with dbm should be a viable option without eating into your precious memory.
+
+I've done some more research into a couple of solutions. I use the same [serve/app.py](serve/app.py), baked into a container image defined by [serve/Dockerfile](serve/Dockerfile), running on Cloud Run for the following investigations. The application takes an environment variable `DB_PATH` that toggles its behaviour for the two variants. I ran the two variants in Cloud Run, with each being freshly deployed, warmed up by 10 refreshes of a single cust ID (to avoid effectively caching the 100 test IDs) before running a three minute locust test up to 20 users. I dropped the number of users (i.e. concurrent requests) as I'm trying to check the performance of the system under load rather than scaling under too much load for a basic Flask app.
+
+I'm running my standard 1m/20recs/10k product pool configuration. he Cloud Run instance is the smallest available in Gen2, i.e. 512MB memory. That means I can't actually run most other options as there isn't enough memory to start the instance.
+
+### Using GCS as physical storage under FUSE
+
+It's possible to "mount" storage from Cloud Storage as if it were disk as part of the Cloud Run offering. [serve_scripts/deploy_fuse.sh](serve_scripts/deploy_fuse.sh) shows how it's configured for my test. The file in storage appears as if it were on a local disk, and I set the `DB_PATH` variable to point to the mounted file.
+
+Response time percentiles (approximated, ms)
+Type    |Name                                 |     50%|   66%|   75%|   80%|   90%|   95%|   98%|   99%| 99.9%|99.99%|  100%|# reqs
+--------|-------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET     |/recommendations                     |      13|    14|    15|    16|    23|    35|  1000|  1000|  1200|  1400|  1400| 85100
+
+The performance is much better than I expected, with a 13ms P50 and 1.4s at the max. The instance handled an average of 470 req/sec, and I saw peaks up to 700req/sec.
+
+This setup might work well, but I see operational challenges with the connection to Cloud Storage, which effectively forms a second tier to the application. Montitoring request volumes, latency and cost back to storage might be important to understand behaviour and costs, expecially as more instances scale out. There may be a learning curve to GCS FUSE in practice too, when I moved the file I got errors about stale references and swapping old data for new might not be trivial.
+
+### Baking the data file into the container image
+
+The Dockerfile also copies over the compressed database file into the image and points the `DB_PATH` variable at the local copy. This is a really neat solution, with no moving parts to go wrong, no need for code to swap new data and linear horizontal scaling. If the data is sensitive there could be arguments against storing it in a container registry, but I'm not sure there's any real difference between that and keeping it in some other storage medium - one to think about.
+
+Response time percentiles (approximated, ms)
+Type    |Name                                 |     50%|   66%|   75%|   80%|   90%|   95%|   98%|   99%| 99.9%|99.99%|  100%|# reqs
+--------|-------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET     |/recommendations                     |      13|    14|    15|    16|    20|    30|  1000|  1000|  1200|  1200|  1400| 92918
+
+Similar performance, a little better as we squeezed a few more requests through - 516 req/sec - but I feel that's likely close enough to be within the error bars. Operability is so much better though - there's no backend to worry about here, the instance operates standalone. Swapping new data in is a replacement of the service, an operation that you need to be familiar with anyway, and fits nicely into an immutable architecture approach. The instance is simpler as there's no code or background threads monitoring for and swapping in the data, there is no I/O or compute overhead during a swap, and healthchecks on each new generation can protect against data issues without putting the service at risk.
+
+Cleaning up old images from the registry might need consideration, but for datasets in the MB-low GB ranges I wouldn't expect the image sizes to be problematically large. I think there's a lot to be said for this approach.
