@@ -5,11 +5,14 @@ import os
 
 import flask
 
+app = flask.Flask(__name__)
+
+db = None
 
 def load_db(path):
     import pathlib
-    print(f'loading db from {path}...')
-    print(f'{os.listdir(pathlib.Path(path).parent)}')
+    app.logger.info(f'loading db from {path}...')
+    app.logger.info(f'{os.listdir(pathlib.Path(path).parent)}')
     return dbm.open(path, 'r')
 
 
@@ -17,15 +20,21 @@ def parse_value(value):
     return json.loads(zlib.decompress(value).decode('utf-8'))
 
 
+def get_db_path():
+    return os.environ.get('DB_PATH', 'uncommitted/recommendations_dataset.compressed.dbm')
+
+
 def get_db():
     global db
     if db is None:
-        db = load_db(os.environ.get('DB_PATH', 'uncommitted/recommendations_dataset.compressed.dbm'))
+        db = load_db(get_db_path())
     return db
 
-app = flask.Flask(__name__)
 
-db = None
+@app.route('/', methods=['GET'])
+def index():
+    return flask.jsonify({"db_path": get_db_path()})
+
 
 @app.route('/recommendations/<customer_id>', methods=['GET'])
 def get_recommendations(customer_id):

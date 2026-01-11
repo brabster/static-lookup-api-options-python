@@ -6,4 +6,8 @@ gcloud run deploy rec-service-built \
   --image europe-west2-docker.pkg.dev/${PROJECT_ID}/docker/static-lookup-api-options-python:latest \
   --platform managed \
   --region europe-west2 \
+  --execution-environment gen2 \
+  --scaling 1 \
+  --command gunicorn \
+  --args='--bind,:8080,--workers,3,app:app' \
   --allow-unauthenticated

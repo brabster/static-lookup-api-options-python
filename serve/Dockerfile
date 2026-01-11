@@ -12,4 +12,4 @@ COPY uncommitted/recommendations_dataset.compressed.dbm.db /app/data/recommendat
 ENV DB_PATH="/app/data/recommendations_dataset.compressed.dbm"
 ENV PORT=8080
 
-CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "--threads", "4", "app:app"]
+CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "--threads", "32", "app:app"]

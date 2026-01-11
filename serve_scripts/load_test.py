@@ -4,7 +4,7 @@ import random
 import locust
 
 
-with open('../uncommitted/recommendations_dataset.sample.json', 'r') as f:
+with open('./recommendations_dataset.sample.json', 'r') as f:
     CUSTOMER_IDS = json.load(f)
 
 class HelloWorldUser(locust.HttpUser):
